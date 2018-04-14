@@ -43,11 +43,12 @@ class YunResolver(object):
 
     def get_common_params(self):
         """
-        Build common params which need invoke Aliyun API
+        Build common params need by Aliyun API
 
         :return: dict of all nessary params
         """
-        # ISO8601 standard: YYYY-MM-DDThh:mm:ssZ, e,g:2015-0109T12:00:00Z (UTC Timezone)
+
+      # ISO8601 standard: YYYY-MM-DDThh:mm:ssZ, e,g:2015-0109T12:00:00Z (UTC Timezone)
         current_timestamp = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')
         signature_nonce = uuid.uuid4()
 
@@ -55,7 +56,7 @@ class YunResolver(object):
             'Format': 'json',
             'Version': '2015-01-09',
             'AccessKeyId': self.access_id,
-            'TimeStamp': current_timestamp,
+            'Timestamp': current_timestamp,
             'SignatureMethod': 'HMAC-SHA1',
             'SignatureNonce': signature_nonce,
             'SignatureVersion': "1.0",

@@ -21,10 +21,18 @@ import socket
 from socket import error as socket_error
 import sys
 from datetime import datetime
+import uuid
 
 import requests
 
+
 class DDNSUtils(object):
+    # To support "*" subdomain definition,
+    # We need generate a non-exist subdomain name
+    # Here we generate a random UUID for that
+    #fake_subdomain = ''.join([random.choice(string.lowercase) for i in xrange(12)])
+    RANDOM_UUID = uuid.uuid4().hex 
+
     """
     Utils class wrapper
     """
@@ -74,6 +82,16 @@ class DDNSUtils(object):
         return ret.content.decode('utf-8').rstrip("\n")
 
     @classmethod
+    def get_interface_address(cls, ifname):
+        import netifaces as ni
+        try:
+            ip = ni.ifaddresses(ifname)[ni.AF_INET][0]['addr']
+            return ip
+        except KeyError:
+            cls.err("Can't find the interface {}".format(ifname))
+            return None
+
+    @classmethod
     def get_dns_resolved_ip(cls, subdomain, domainname):
         """
         Get current IP address resolved by DNS server
@@ -84,9 +102,12 @@ class DDNSUtils(object):
         """
         ip_addr = None
         try:
-            hostname = "{0}.{1}".format(subdomain, domainname)
-            if subdomain == '@':
-                hostname = domainname
+            if subdomain == "@":
+                hostname = domainname 
+            elif subdomain == "*":
+                hostname = "{0}.{1}".format(cls.RANDOM_UUID, domainname)
+            else:
+                hostname = "{0}.{1}".format(subdomain, domainname)
 
             ip_addr = socket.gethostbyname(hostname)
         except socket_error as ex:
